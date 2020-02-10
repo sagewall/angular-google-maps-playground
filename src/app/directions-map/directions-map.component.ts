@@ -2,11 +2,11 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { } from 'googlemaps';
 
 @Component({
-  selector: 'app-basic-map',
-  templateUrl: './basic-map.component.html',
-  styleUrls: ['./basic-map.component.scss']
+  selector: 'app-directions-map',
+  templateUrl: './directions-map.component.html',
+  styleUrls: ['./directions-map.component.scss']
 })
-export class BasicMapComponent implements OnInit {
+export class DirectionsMapComponent implements OnInit {
 
   map: google.maps.Map;
 
@@ -28,5 +28,4 @@ export class BasicMapComponent implements OnInit {
 
     this.map = new google.maps.Map(this.mapNode.nativeElement, mapOptions);
   }
-
 }

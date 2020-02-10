@@ -1,9 +1,11 @@
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
 import { BasicMapComponent } from './basic-map/basic-map.component';
+import { DirectionsMapComponent } from './directions-map/directions-map.component';
 
 const routes: Routes = [
   { path: 'basic-map', component: BasicMapComponent },
+  { path: 'directions-map', component: DirectionsMapComponent },
   { path: '', redirectTo: '/basic-map', pathMatch: 'full' },
   { path: '**', component: BasicMapComponent }
 ];
