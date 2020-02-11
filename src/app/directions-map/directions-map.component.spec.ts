@@ -1,4 +1,5 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ReactiveFormsModule } from '@angular/forms';
 import { } from 'googlemaps';
 import { DirectionsMapComponent } from './directions-map.component';
 
@@ -8,9 +9,9 @@ describe('DirectionsMapComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [DirectionsMapComponent]
-    })
-      .compileComponents();
+      declarations: [DirectionsMapComponent],
+      imports: [ReactiveFormsModule]
+    }).compileComponents();
   }));
 
   beforeEach(() => {
