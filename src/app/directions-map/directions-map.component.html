@@ -1,4 +1,14 @@
 <div class="container">
-    <div #directionsNode id="directionsNode"></div>
+    <div #directionsNode id="directionsNode">
+        <form [formGroup]="directionsForm" (ngSubmit)="onSubmit()">
+            <label>Origin
+                <input #originNode formControlName="originFormControl" type="text">
+            </label>
+            <label>Destination
+                <input #destinationNode formControlName="destinationFormControl" type="text">
+            </label>
+            <button class="button" type="submit">Get Directions</button>
+        </form>
+    </div>
     <div #mapNode id="mapNode"></div>
 </div>
