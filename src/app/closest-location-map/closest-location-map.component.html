@@ -1,0 +1,22 @@
+<div class="container">
+    <div #directionsNode id="directionsNode">
+        <form [formGroup]="directionsForm" (ngSubmit)="onSubmit()">
+            <label>Origin
+                <input #originNode formControlName="originFormControl" type="text">
+            </label>
+            <div>
+                <input id="dropbox" type="radio" value="dropbox" name="locationTypeFormControl"
+                    formControlName="locationTypeFormControl">
+                <label for="dropbox">Dropbox</label>
+            </div>
+
+            <div>
+                <input id="vspc" type="radio" value="vspc" name="locationTypeFormControl"
+                    formControlName="locationTypeFormControl">
+                <label for="vspc">Vote Center</label>
+            </div>
+            <button class="button" type="submit">Find Closest Location</button>
+        </form>
+    </div>
+    <div #mapNode id="mapNode"></div>
+</div>
