@@ -10,13 +10,16 @@ import { LocationService } from '../location.service';
 })
 export class ClosestLocationMapComponent implements OnInit {
 
+  closestLocation: any = {};
+  destinations: google.maps.LatLng[] = [];
   destinationPlaceResult: google.maps.places.PlaceResult;
+  distanceMatrixService = new google.maps.DistanceMatrixService();
   directionsForm = new FormGroup({
     originFormControl: new FormControl(''),
     locationTypeFormControl: new FormControl('')
   });
-  directionsService: google.maps.DirectionsService;
-  directionsRenderer: google.maps.DirectionsRenderer;
+  directionsService = new google.maps.DirectionsService();
+  directionsRenderer = new google.maps.DirectionsRenderer();
   locationFeatureCollection: GeoJSON.FeatureCollection;
   map: google.maps.Map;
   originAutocomplete: google.maps.places.Autocomplete;
@@ -61,26 +64,67 @@ export class ClosestLocationMapComponent implements OnInit {
   }
 
   initDirections() {
-    this.directionsService = new google.maps.DirectionsService();
-    this.directionsRenderer = new google.maps.DirectionsRenderer();
     this.directionsRenderer.setMap(this.map);
     this.directionsRenderer.setPanel(this.directionsNode.nativeElement);
   }
 
   initPlaces() {
-    const autocompleteOptions: google.maps.places.AutocompleteOptions = { fields: ['place_id', 'name', 'types'] };
+    const autocompleteOptions: google.maps.places.AutocompleteOptions = { fields: ['place_id', 'formatted_address'] };
     this.originAutocomplete = new google.maps.places.Autocomplete(this.originElementRef.nativeElement, autocompleteOptions);
+
+    for (const feature of this.locationFeatureCollection.features) {
+      if (feature.geometry.type === 'Point') {
+        this.destinations.push(new google.maps.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]));
+      }
+    }
   }
 
   onSubmit() {
     this.originPlaceResult = this.originAutocomplete.getPlace();
-    this.calcRoute();
+    this.calcClosestLocation();
+  }
+
+  calcClosestLocation() {
+    const distanceMatrixRequest: google.maps.DistanceMatrixRequest = {
+      origins: [this.originPlaceResult.formatted_address],
+      destinations: this.destinations,
+      travelMode: google.maps.TravelMode.DRIVING
+    };
+    this.distanceMatrixService.getDistanceMatrix(distanceMatrixRequest,
+      (response: google.maps.DistanceMatrixResponse, status: google.maps.DistanceMatrixStatus) => {
+        const results: any = [];
+        if (status === 'OK') {
+          const origins = response.originAddresses;
+          const destinations = response.destinationAddresses;
+
+          for (let i = 0; i < origins.length; i++) {
+            const elements = response.rows[i].elements;
+            for (let j = 0; j < elements.length; j++) {
+              const result: any = {};
+              result.origin = origins[i];
+              result.destination = destinations[j];
+              result.distance = elements[j].distance;
+              result.duration = elements[j].duration;
+              results.push(result);
+            }
+          }
+        }
+        let minDistance = 999999999999999999999999999999;
+        for (const result of results) {
+          const distance = result.distance.value;
+          if (distance < minDistance) {
+            minDistance = distance;
+            this.closestLocation = result;
+          }
+        }
+        this.calcRoute();
+      });
   }
 
   calcRoute() {
     const directionsOptions: google.maps.DirectionsRequest = {
-      origin: { placeId: this.originPlaceResult.place_id },
-      destination: { placeId: this.destinationPlaceResult.place_id },
+      origin: String(this.closestLocation.origin),
+      destination: String(this.closestLocation.destination),
       travelMode: google.maps.TravelMode.DRIVING
     };
 
