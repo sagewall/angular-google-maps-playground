@@ -68,7 +68,8 @@ export class ClosestLocationMapComponent implements OnInit {
   }
 
   initPlaces() {
-    this.originAutocomplete = new google.maps.places.Autocomplete(this.originElementRef.nativeElement);
+    const autocompleteOptions: google.maps.places.AutocompleteOptions = { fields: ['place_id', 'name', 'types'] };
+    this.originAutocomplete = new google.maps.places.Autocomplete(this.originElementRef.nativeElement, autocompleteOptions);
   }
 
   onSubmit() {

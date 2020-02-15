@@ -59,8 +59,9 @@ export class DirectionsMapComponent implements OnInit {
   }
 
   initPlaces() {
-    this.originAutocomplete = new google.maps.places.Autocomplete(this.originElementRef.nativeElement);
-    this.destinationAutocomplete = new google.maps.places.Autocomplete(this.destinationElementRef.nativeElement);
+    const autocompleteOptions: google.maps.places.AutocompleteOptions = { fields: ['place_id', 'name', 'types'] };
+    this.originAutocomplete = new google.maps.places.Autocomplete(this.originElementRef.nativeElement, autocompleteOptions);
+    this.destinationAutocomplete = new google.maps.places.Autocomplete(this.destinationElementRef.nativeElement, autocompleteOptions);
   }
 
   onSubmit() {
