@@ -1,5 +1,6 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import * as turf from '@turf/turf';
 import { } from 'googlemaps';
 import { LocationService } from '../location.service';
 
@@ -69,24 +70,39 @@ export class ClosestLocationMapComponent implements OnInit {
   }
 
   initPlaces() {
-    const autocompleteOptions: google.maps.places.AutocompleteOptions = { fields: ['place_id', 'formatted_address'] };
+    const autocompleteOptions: google.maps.places.AutocompleteOptions = { fields: ['place_id', 'formatted_address', 'geometry.location'] };
     this.originAutocomplete = new google.maps.places.Autocomplete(this.originElementRef.nativeElement, autocompleteOptions);
-
-    for (const feature of this.locationFeatureCollection.features) {
-      if (feature.geometry.type === 'Point') {
-        this.destinations.push(new google.maps.LatLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]));
-      }
-    }
   }
 
   onSubmit() {
     this.originPlaceResult = this.originAutocomplete.getPlace();
+    this.calcCloseLocations();
+  }
+
+  calcCloseLocations() {
+    const originPoint = turf.point([this.originPlaceResult.geometry.location.lng(), this.originPlaceResult.geometry.location.lat()]);
+    const destinations: any = [];
+
+    for (const feature of this.locationFeatureCollection.features) {
+      if (feature.geometry.type === 'Point') {
+        const destinationPoint = turf.point([feature.geometry.coordinates[0], feature.geometry.coordinates[1]]);
+        const distance = turf.distance(originPoint, destinationPoint, { units: 'miles' });
+        destinations.push({ destinationPoint, distance });
+      }
+    }
+    destinations.sort((a, b) => (a.distance > b.distance) ? 1 : ((b.distance > a.distance) ? -1 : 0));
+    const closeDestinations = destinations.slice(0, 10);
+    for (const closeDestination of closeDestinations) {
+      this.destinations.push(new google.maps.LatLng(
+        closeDestination.destinationPoint.geometry.coordinates[1],
+        closeDestination.destinationPoint.geometry.coordinates[0]));
+    }
     this.calcClosestLocation();
   }
 
   calcClosestLocation() {
     const distanceMatrixRequest: google.maps.DistanceMatrixRequest = {
-      origins: [this.originPlaceResult.formatted_address],
+      origins: [this.originPlaceResult.geometry.location],
       destinations: this.destinations,
       travelMode: google.maps.TravelMode.DRIVING
     };
