@@ -1,0 +1,9 @@
+[build]
+  base = "/"
+  publish = "/dist/angular-google-maps-playground/"
+  command = "ng build --prod"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
